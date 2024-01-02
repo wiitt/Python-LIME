@@ -1,0 +1,5 @@
+
+# ignore a folder with photos
+Photos/
+# ignore a technical folder
+__pycache__/

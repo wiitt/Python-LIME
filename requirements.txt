@@ -1,0 +1,5 @@
+opencv
+numpy
+scipy
+matplotlib
+bm3d
