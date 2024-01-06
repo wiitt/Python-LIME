@@ -54,7 +54,10 @@ def d_sparse_matrices(illumination_map: np.ndarray) -> csr_matrix:
   return d_x_sparse, d_y_sparse
 
 
-def partial_derivative_vectorized(input_matrix: np.ndarray, toeplitz_sparse_matrix: csr_matrix) -> np.ndarray:
+def partial_derivative_vectorized(
+    input_matrix: np.ndarray,
+    toeplitz_sparse_matrix: csr_matrix
+    ) -> np.ndarray:
   """Calculates a partial derivative of an ''input_matrix'' with a given ''toeplitz_sparse_matrix''.
    
    Returns the shape-(M, N) array of derivative values.
@@ -85,7 +88,12 @@ def partial_derivative_vectorized(input_matrix: np.ndarray, toeplitz_sparse_matr
   return p_derivative
 
 
-def gaussian_weight(grad: np.ndarray, size: int, sigma: Union[int, float], epsilon: float) -> np.ndarray:
+def gaussian_weight(
+    grad: np.ndarray,
+    size: int,
+    sigma: Union[int, float],
+    epsilon: float
+    ) -> np.ndarray:
   """Initializes weight matrix according to the third wieght strategy of the original LIME paper.
    
    Returns the shape-(M, N) array of weight values.
@@ -110,7 +118,11 @@ def gaussian_weight(grad: np.ndarray, size: int, sigma: Union[int, float], epsil
   return weights
 
 
-def initialize_weights(ill_map: np.ndarray, strategy_n: int, epsilon: float = 0.001) -> np.ndarray:
+def initialize_weights(
+    ill_map: np.ndarray,
+    strategy_n: int,
+    epsilon: float = 0.001
+    ) -> np.ndarray:
   """Initializes weight matrices according to a chosen strategy of the original LIME paper. Then updates 
   and vectorizes these weight matrices preparing them to be used for calculation of a new illumination map. 
    
@@ -167,7 +179,10 @@ def initialize_weights(ill_map: np.ndarray, strategy_n: int, epsilon: float = 0.
   return flat_w_x, flat_w_y
 
 
-def update_illumination_map(ill_map: np.ndarray, weight_strategy: int = 3) -> np.ndarray:
+def update_illumination_map(
+    ill_map: np.ndarray,
+    weight_strategy: int = 3
+    ) -> np.ndarray:
   """Updates the initial illumination map according to a sped-up solver of the original LIME paper.
    
    Returns the shape-(M, N) updated illumination map array.
@@ -208,7 +223,10 @@ def update_illumination_map(ill_map: np.ndarray, weight_strategy: int = 3) -> np
   return updated_t.reshape(ill_map.shape)
 
 
-def gamma_correction(ill_map: np.ndarray, gamma: Union[int, float]) -> np.ndarray:
+def gamma_correction(
+    ill_map: np.ndarray,
+    gamma: Union[int, float]
+    ) -> np.ndarray:
   """Performes gamma correction of the initial illumination map with a given ''gamma'' coefficient.
    
    Returns the shape-(M, N) corrected illumination map array.
@@ -225,20 +243,25 @@ def gamma_correction(ill_map: np.ndarray, gamma: Union[int, float]) -> np.ndarra
   return ill_map ** gamma
 
 
-def bm3d_yuv_denoising(image, cor_ill_map, std_dev=0.02):
-  """Performes denoising of the original image with B3MD algorithm and corrects its brigghtness with an updated illumination map.
+def bm3d_yuv_denoising(
+    image: np.ndarray,
+    cor_ill_map: np.ndarray,
+    std_dev: Union[int, float]=0.02
+    ) -> np.ndarray:
+  """Performes denoising of an image Y color channel with B3MD algorithm and corrects its brigghtness with an updated illumination map.
    
-   Returns the shape-(M, N) denoised image with corrected brightness and clipped pixel intensities exceeding 1.
+   Returns a shape-(M, N) denoised image with corrected brightness in which
+   pixel intensities exceeding 1 are clipped.
    
    ## Args:
-        image (numpy.ndarray) : A shape-(3, M, N)
+        image (numpy.ndarray) : A shape-(3, M, N) initial image.
    
-        cor_ill_map (numpy.ndarray) : A shape-(M, N) array of intensity values.
+        cor_ill_map (numpy.ndarray) : A shape-(M, N) array of corrected intensity values.
 
-        gamma (int or float) : A value of gamma correction coefficient.
+        std_dev (int or float) : A value of standard deviation parameter for the BM3D algorithm.
 
    ## Returns:
-        (numpy.ndarray) : A shape-(M, N) array of corrected values of the illumination map.
+        (numpy.ndarray) : A shape-(M, N) denoised image with a corrected illumination map.
   """
 
   image_yuv = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
@@ -251,22 +274,47 @@ def bm3d_yuv_denoising(image, cor_ill_map, std_dev=0.02):
   return np.clip(recombined_image, 0, 1).astype("float32")
 
 
-def is_image(file_name: str):
+def is_image(file_name: str) -> bool:
+  """Checks if a file is of 'bmp', 'jpg', 'png' or 'tif' format.
+  
+  Returns True if a file name ends with any of these formats, and False is returned otherwise.
+  
+   ## Args:
+        file_name (str) : A string representing a file name.
+
+    ## Returns:
+        bool_value (bool) : A boolean value answering if the provided file name is of the given four formats.   
+  """
 
   bool_value = file_name[-3:] in ['bmp', 'jpg', 'png', 'tif']
 
   return bool_value
 
 
-def loss_calculation(initial_image, refined_image):
+def loss_calculation(
+    reference_image: np.ndarray,
+    refined_image: np.ndarray
+    ) -> float:
+  """Calculates the lightness order error (LOE) metric comparing pixel intensities of a refined image with their reference counterparts.
   
-  v_shape, h_shape = initial_image.shape
-  n_pixels = initial_image.size
+  Returns a calculated value of the LOE metric.
+
+    ## Args:
+        reference_image (numpy.ndarray) : A shape-(3, M, N) reference image which is considered as ground truth.
+
+        refined_image (numpy.ndarray) : A shape-(3, M, N) refined image.
+
+    ## Returns:
+        (float) : A calculated value of the LOE metric.
+  """
+  
+  v_shape, h_shape = reference_image.shape
+  n_pixels = reference_image.size
   loss = 0
 
   for v_pixel in range(v_shape-1):
     for h_pixel in range(h_shape-1):
-      bool_term_ini = initial_image <= initial_image[v_pixel, h_pixel]
+      bool_term_ini = reference_image <= reference_image[v_pixel, h_pixel]
       bool_term_ref = refined_image <= refined_image[v_pixel, h_pixel]
       xor_term = np.logical_xor(bool_term_ini, bool_term_ref)
       loss += np.sum(xor_term)
