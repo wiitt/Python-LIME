@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 from bm3d import bm3d
 
 folder = './Photos/ExDark/'
-outDirectory = folder + 'Output/'
+output_dir = folder + 'Output/'
 weight_strategy = 3
 gamma = 0.4
 std_dev = 0.04
@@ -38,6 +38,6 @@ for image in onlyimages:
     plt.subplot(1, 2, 2)
     plt.imshow(denoised_image)
     denoised_image_bgr = cv2.cvtColor(denoised_image * 255, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(outDirectory + 'LIME_' + image, denoised_image_bgr)
+    cv2.imwrite(output_dir + 'LIME_' + image, denoised_image_bgr)
 
 plt.show()

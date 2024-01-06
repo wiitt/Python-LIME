@@ -15,7 +15,7 @@ std_dev = 0.04
 
 
 img_path = './Photos/HDR/'
-outDirectory = img_path + 'Output/'
+output_dir = img_path + 'Output/'
 name_list = ['CR', 'BaW', 'SLH', 'LE', 'BoG', 'HC']
 
 for img in name_list:
@@ -34,12 +34,12 @@ for img in name_list:
     ref_image = cv2.imread(img_path + img + '_HDR.jpg', cv2.IMREAD_COLOR)
     ref_image_rgb = cv2.cvtColor(ref_image, cv2.COLOR_BGR2RGB) / 255
     downsampled_factor = 100 / min(image_rgb.shape[0:1])
-    downsampled_den = cv2.resize(denoised_image, (0, 0), fx=downsampled_factor, fy=downsampled_factor)
-    downsampled_ref = cv2.resize(ref_image_rgb, (0, 0), fx=downsampled_factor, fy=downsampled_factor)
-
+    downsampled_den = cv2.resize(denoised_image, (0, 0), 
+                                 fx=downsampled_factor, fy=downsampled_factor)
+    downsampled_ref = cv2.resize(ref_image_rgb, (0, 0), 
+                                 fx=downsampled_factor, fy=downsampled_factor)
     ref_il_map = np.max(downsampled_ref, axis=-1)
     den_il_map = np.max(downsampled_den, axis=-1)
-
     print('LOE:', LIME.loss_calculation(ref_il_map, den_il_map), '\n')
 
     plt.figure(figsize = (12, 10))
@@ -49,6 +49,6 @@ for img in name_list:
     plt.imshow(denoised_image)
 
     denoised_image_bgr = cv2.cvtColor(denoised_image * 255, cv2.COLOR_RGB2BGR)
-    cv2.imwrite(outDirectory + img + '_LIME.jpg', denoised_image_bgr)
+    cv2.imwrite(output_dir + img + '_LIME.jpg', denoised_image_bgr)
 
 plt.show()
