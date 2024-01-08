@@ -12,8 +12,6 @@ from bm3d import bm3d
 weight_strategy = 3
 gamma = 0.8
 std_dev = 0.04
-
-
 img_path = './Photos/HDR/'
 output_dir = img_path + 'Output/'
 name_list = ['CR', 'BaW', 'SLH', 'LE', 'BoG', 'HC']

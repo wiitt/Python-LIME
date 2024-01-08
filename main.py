@@ -15,9 +15,7 @@ weight_strategy = 3
 gamma = 0.4
 std_dev = 0.04
 
-
 onlyimages = [f for f in listdir(folder) if LIME.is_image(f)]
-
 for image in onlyimages:
     img_path = folder + image
     image_read = cv2.imread(img_path, cv2.IMREAD_COLOR)
