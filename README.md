@@ -30,7 +30,7 @@ Weight matrices are initialized by one of three strategies and then scaled with 
 ```
 The vectorization is implemented by vertical stacking of transposed row vectors, but it could be done by stacking column of vectors one after the other either. Therewith, Toeplitz matrices for the discrete gradient would be different in these two cases. Their appearance is also dependent on which side of the Toeplitz matrix the vectorized term is located. The general structure of these matrices is given above. However, rows of these matrices, corresponding to elements located on the boundaries of an image, could deviate from the general structure. In essence, their form depends on the intended padding. To prevent the introduction of extra gradients on the boundaries of images, the corresponding rows consist of zeros.<br>
 
-# What the code does?
+# What does the code do?
 The code formulates the problem for given images and automatically calculates a refined illumination map, presenting the exact solution of the equation derived by the authors.
 ```math
 \mathbf{t}=(\mathbf{I}+\alpha\sum_{d\epsilon[h,v]}\mathbf{D^T_d}Diag(\mathbf{\widetilde{w}_d})\mathbf{D^T_d})^{-1}\mathbf{\hat{t}}
